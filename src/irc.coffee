@@ -13,9 +13,27 @@ Log = require('log')
 logger = new Log process.env.HUBOT_LOG_LEVEL or 'info'
 
 class IrcBot extends Adapter
+  sendToSlackWebHook: (envelope, strings...) ->
+    url = process.env.HUBOT_IRC_SLACK_WEBHOOK_URL
+    for str in strings
+      data =
+        channel: envelope.room
+        text: str
+        username: @robot.name
+
+      if process.env.HUBOT_IRC_SLACK_ICON_EMOJI?
+        data.icon_emoji = process.env.HUBOT_IRC_SLACK_ICON_EMOJI
+
+      if process.env.HUBOT_IRC_SLACK_ICON_URL?
+        data.icon_url = process.env.HUBOT_IRC_SLACK_ICON_URL
+
+      @robot.http(url).post(JSON.stringify data) (err, res, body) ->
+        logger.error("ERROR: Failed to send to Slack Web Hook: ", err) if err?
+
   send: (envelope, strings...) ->
     # Use @notice if SEND_NOTICE_MODE is set
-    return @notice envelope, strings if process.env.HUBOT_IRC_SEND_NOTICE_MODE?
+    return @notice envelope, strings... if process.env.HUBOT_IRC_SEND_NOTICE_MODE?
+    return @sendToSlackWebHook envelope, strings... if envelope.room?
 
     target = @_getTargetFromEnvelope envelope
 
@@ -43,7 +61,7 @@ class IrcBot extends Adapter
 
   emote: (envelope, strings...) ->
     # Use @notice if SEND_NOTICE_MODE is set
-    return @notice envelope, strings if process.env.HUBOT_IRC_SEND_NOTICE_MODE?
+    return @notice envelope, strings... if process.env.HUBOT_IRC_SEND_NOTICE_MODE?
 
     target = @_getTargetFromEnvelope envelope
 
@@ -54,6 +72,8 @@ class IrcBot extends Adapter
       @bot.action target, str
 
   notice: (envelope, strings...) ->
+    return @sendToSlackWebHook envelope, strings... if envelope.room?
+
     target = @_getTargetFromEnvelope envelope
 
     unless target
@@ -232,9 +252,12 @@ class IrcBot extends Adapter
       logger.info "NOTICE from #{from} to #{to}: #{message}"
 
       user = self.createUser to, from
+      return unless user.room in options.rooms
       self.receive new TextMessage(user, message)
 
     bot.addListener 'message', (from, to, message) ->
+      return unless from
+
       if options.nick.toLowerCase() == to.toLowerCase()
         # this is a private message, let the 'pm' listener handle it
         return
@@ -247,13 +270,8 @@ class IrcBot extends Adapter
       logger.debug "From #{from} to #{to}: #{message}"
 
       user = self.createUser to, from
-      if user.room
-        logger.info "#{to} <#{from}> #{message}"
-      else
-        unless message.indexOf(to) == 0
-          message = "#{to}: #{message}"
-        logger.debug "msg <#{from}> #{message}"
-
+      return unless user.room in options.rooms
+      logger.info "#{to} <#{from}> #{message}"
       self.receive new TextMessage(user, message)
 
     bot.addListener 'action', (from, to, message) ->
@@ -320,14 +338,6 @@ class IrcBot extends Adapter
 
     bot.addListener 'invite', (channel, from) ->
       logger.info('%s invited you to join %s', from, channel)
-
-      if from in options.ignoreUsers
-        logger.info('Ignoring user: %s', from)
-        # we'll ignore this message if it's from someone we want to ignore
-        return
-      
-      if not process.env.HUBOT_IRC_PRIVATE or process.env.HUBOT_IRC_IGNOREINVITE
-        bot.join channel
 
     @bot = bot
 
