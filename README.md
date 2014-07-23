@@ -1,5 +1,19 @@
 # Hubot IRC Adapter
 
+A Hubot IRC Adapter which is hacked for using in private groups of the [Slack](https://slack.com/).
+
+## Installation
+
+Install the module with: `npm install --save shiwano/hubot-irc`
+
+## Hacked environment variables
+
+* `HUBOT_IRC_SLACK_WEBHOOK_URL` - A URL of the Slack Incoming WebHooks Integration.
+* `HUBOT_IRC_SLACK_ICON_URL` - A URL of the bot icon.
+* `HUBOT_IRC_SLACK_ICON_EMOJI` - A emoji name of the bot icon (e.g. `:ghost:`).
+
+---
+
 ## Travis-CI Build Status
 
 [![Build Status](https://travis-ci.org/nandub/hubot-irc.png?branch=master)](https://travis-ci.org/nandub/hubot-irc)
