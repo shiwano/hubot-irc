@@ -148,7 +148,7 @@ class IrcBot extends Adapter
     @bot.send command, strings...
 
   checkCanStart: ->
-    if not process.env.HUBOT_IRC_NICK and not @robot.name
+    if not process.env.HUBOT_IRC_NICK
       throw new Error("HUBOT_IRC_NICK is not defined; try: export HUBOT_IRC_NICK='mybot'")
     else if not process.env.HUBOT_IRC_ROOMS
       throw new Error("HUBOT_IRC_ROOMS is not defined; try: export HUBOT_IRC_ROOMS='#myroom'")
@@ -173,7 +173,7 @@ class IrcBot extends Adapter
     do @checkCanStart
 
     options =
-      nick:     process.env.HUBOT_IRC_NICK or @robot.name
+      nick:     process.env.HUBOT_IRC_NICK
       realName: process.env.HUBOT_IRC_REALNAME
       port:     process.env.HUBOT_IRC_PORT
       rooms:    process.env.HUBOT_IRC_ROOMS.split(",")
@@ -208,7 +208,7 @@ class IrcBot extends Adapter
     # Override the response to provide a sendPrivate method
     @robot.Response = IrcResponse
 
-    @robot.name = options.nick
+    @robot.name = process.env.HUBOT_IRC_SLACK_NAME
     bot = new Irc.Client options.server, options.nick, client_options
 
     next_id = 1

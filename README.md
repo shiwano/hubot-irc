@@ -9,6 +9,7 @@ Install the module with: `npm install --save shiwano/hubot-irc`
 ## Hacked environment variables
 
 * `HUBOT_IRC_SLACK_WEBHOOK_URL` - A URL of the Slack Incoming WebHooks Integration.
+* `HUBOT_IRC_SLACK_NAME` - The bot name.
 * `HUBOT_IRC_SLACK_ICON_URL` - A URL of the bot icon.
 * `HUBOT_IRC_SLACK_ICON_EMOJI` - A emoji name of the bot icon (e.g. `:ghost:`).
 
