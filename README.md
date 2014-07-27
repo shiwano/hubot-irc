@@ -1,6 +1,6 @@
 # Hubot IRC Adapter
 
-A Hubot IRC Adapter which is hacked for using in private groups of the [Slack](https://slack.com/).
+A Hubot IRC Adapter for using in private groups of the [Slack](https://slack.com/).
 
 ## Installation
 
